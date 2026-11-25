@@ -1,0 +1,38 @@
+# ComfyUI portable install (user-supplied)
+ComfyUI_windows_portable/
+
+# model weights - never commit these
+models/
+*.gguf
+*.onnx
+*.safetensors
+*.pth
+*.ckpt
+*.bin
+
+# renders and temp files
+output/
+*.mp4
+*.webm
+*.mov
+*.wav
+*.png
+*.jpg
+!docs/**/*.png
+!assets/**/*.png
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# editors / os
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# logs
+*.log

@@ -1,0 +1,6 @@
+# torch, av and safetensors are already present in the ComfyUI portable Python.
+# Install only what is missing there.
+opencv-python-headless>=4.10
+onnxruntime>=1.18
+onnx>=1.16
+numpy>=1.26
