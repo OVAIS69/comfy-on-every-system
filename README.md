@@ -80,7 +80,7 @@ Numbers: [docs/performance.md](docs/performance.md). Hardware tiers: [docs/hardw
 Prerequisites: NVIDIA GPU with **6 GB+ VRAM**, **16 GB RAM**, ~35 GB free disk, Windows 10/11.
 
 ```powershell
-git clone <url-of-this-repo> comfyui-wan-6gb
+git clone https://github.com/OVAIS69/comfyui-wan-6gb.git
 cd comfyui-wan-6gb
 
 # 1. ComfyUI portable: download the 7z from
