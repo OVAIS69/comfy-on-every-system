@@ -14,6 +14,31 @@ RTX 4050 Laptop (6 GB) · Ryzen 7 7435HS · 16 GB RAM · Windows 11 · ComfyUI 0
 
 ---
 
+## Website
+
+There is a single-page field guide in [`docs/`](docs/index.html) — a Comfy-style dark UI (ink
+`#211927`, electric yellow `#f2ff59`, node-graph hero), dependency-free, no build step, and small
+enough to open on the same laptop you are trying to configure. It bundles one OFL font
+(Space Grotesk, 22 KB) and nothing else. It covers:
+
+- a **VRAM picker** (4 / 6 / 8 / 12 / 16 / 24 GB) that changes the recommended quant, encoder
+  placement, resolution, frame count and launch flags
+- all **twelve elements** of a Wan graph, from the text encoder to the upscaler
+- the **VRAM budget**, the measured benchmarks, the four workflows, the five install steps, and the
+  failures you will actually hit
+
+Live: **https://ovais69.github.io/comfyui-wan-6gb/** — enable it once under
+Settings → Pages → Source: `main`, folder `/docs`. No Actions or build step required.
+
+Run it locally without a server by opening `docs/index.html`, or serve the folder:
+
+```powershell
+python -m http.server 8765 --directory .\docs
+# then open http://127.0.0.1:8765/
+```
+
+---
+
 ## What you get
 
 | Workflow | Status | What it does |

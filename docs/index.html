@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wan 2.2 on 6 GB — the low-end field guide</title>
+<meta name="description" content="Run Wan 2.2 video generation in ComfyUI on a 4–8 GB laptop GPU. Every element explained: quantisation, VRAM budget, text encoder, sampler, VAE, upscaler — with measured timings.">
+<meta name="theme-color" content="#211927">
+<meta property="og:title" content="Wan 2.2 on 6 GB — the low-end field guide">
+<meta property="og:description" content="Video generation on laptop hardware, explained element by element. Measured on an RTX 4050 6 GB.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f2ff59'/><path d='M8 20l5-9 3 6 3-4 5 7' stroke='%23211927' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="announce">
+  <div class="wrap announce-inner">
+    <p><strong>Built for 6 GB laptops.</strong> Every number on this page was measured, not guessed.</p>
+    <a href="#bench">See the benchmarks
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+<header class="nav" id="top">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="9" fill="#f2ff59"/>
+        <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#211927" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>wan<b>·</b>6gb</span>
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#device">Your device</a>
+      <a href="#stack">Elements</a>
+      <a href="#budget">VRAM</a>
+      <a href="#bench">Benchmarks</a>
+      <a href="#workflows">Workflows</a>
+      <a href="#install">Install</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-outline nav-cta" href="https://github.com/OVAIS69/comfyui-wan-6gb" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38v-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.87 2.34.67.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>GitHub</span>
+      </a>
+      <a class="btn btn-primary nav-cta" href="#install">Install</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ───────────────────────────── hero ───────────────────────────── -->
+<section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-graph" aria-hidden="true">
+      <div class="hg-node"><span class="hg-k">input</span><strong>prompt</strong></div>
+      <span class="hg-wire"></span>
+      <div class="hg-node"><span class="hg-k">4.66 GB</span><strong>umt5</strong></div>
+      <span class="hg-wire"></span>
+      <div class="hg-node is-hot"><span class="hg-k">3.4 GB · GPU</span><strong>5B UNet</strong></div>
+      <span class="hg-wire"></span>
+      <div class="hg-node"><span class="hg-k">latent</span><strong>sampler</strong></div>
+      <span class="hg-wire"></span>
+      <div class="hg-node"><span class="hg-k">1.3 GB</span><strong>VAE</strong></div>
+      <span class="hg-wire"></span>
+      <div class="hg-node"><span class="hg-k">output</span><strong>mp4</strong></div>
+    </div>
+    <p class="eyebrow"><span class="dot"></span> Measured on an RTX 4050 Laptop · 6 GB · 16 GB RAM</p>
+    <h1>Video generation<br><span class="grad">on 6 GB.</span></h1>
+    <p class="lede">
+      Wan 2.2 normally asks for 12–24 GB of VRAM and 30 GB of checkpoints.
+      This is the same model, quantised to 3.3 GB, running in ComfyUI on 6 GB —
+      with every element of the stack explained, and a real number attached to it.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#install">Install in 5 steps</a>
+      <a class="btn btn-outline" href="#device">Find your device</a>
+    </div>
+    <dl class="stats">
+      <div><dt>2.5 min</dt><dd>per 3.4 s clip at 480p</dd></div>
+      <div><dt>9 GB</dt><dd>of models, not 30</dd></div>
+      <div><dt>5.7 / 6.0</dt><dd>GB VRAM peak, measured</dd></div>
+      <div><dt>4</dt><dd>steps, not 30</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ───────────────────────────── device picker ───────────────────────────── -->
+<section class="section" id="device">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">01 — Your hardware</p>
+      <h2>Pick your VRAM. Get a build that fits.</h2>
+      <p class="sub">The only number that decides your configuration is free VRAM. Everything below
+        changes with it: the quant, the encoder placement, the resolution, the frame count, and
+        whether the fast path is even possible.</p>
+    </div>
+
+    <div class="picker" role="group" aria-label="Select your GPU memory">
+      <button class="chip" data-gb="4" aria-pressed="false">4 GB</button>
+      <button class="chip is-on" data-gb="6" aria-pressed="true">6 GB</button>
+      <button class="chip" data-gb="8" aria-pressed="false">8 GB</button>
+      <button class="chip" data-gb="12" aria-pressed="false">12 GB</button>
+      <button class="chip" data-gb="16" aria-pressed="false">16 GB</button>
+      <button class="chip" data-gb="24" aria-pressed="false">24 GB</button>
+    </div>
+
+    <div class="device-card" aria-live="polite">
+      <div class="device-main">
+        <div class="device-head">
+          <span class="badge" id="d-badge">Recommended</span>
+          <h3 id="d-title">6 GB — the reference machine</h3>
+          <p id="d-verdict">The configuration this whole site is measured on.</p>
+        </div>
+
+        <div class="spec-grid">
+          <div class="spec">
+            <span class="spec-k">Diffusion model</span>
+            <span class="spec-v mono" id="d-model">Wan22-Turbo-Q4_K_M.gguf</span>
+            <span class="spec-n" id="d-model-note">3.3 GiB on disk · fully resident on the GPU</span>
+          </div>
+          <div class="spec">
+            <span class="spec-k">Text encoder</span>
+            <span class="spec-v mono" id="d-enc">umt5-xxl Q4_K_M</span>
+            <span class="spec-n" id="d-enc-note">on CPU · 4.66 GB streamed from RAM</span>
+          </div>
+          <div class="spec">
+            <span class="spec-k">Resolution</span>
+            <span class="spec-v mono" id="d-res">704 × 480</span>
+            <span class="spec-n">multiples of 32 only</span>
+          </div>
+          <div class="spec">
+            <span class="spec-k">Frames</span>
+            <span class="spec-v mono" id="d-frames">81</span>
+            <span class="spec-n" id="d-dur">3.4 s at 24 fps · 4n+1 rule</span>
+          </div>
+          <div class="spec">
+            <span class="spec-k">Steps</span>
+            <span class="spec-v mono" id="d-steps">4</span>
+            <span class="spec-n">CFG 1.0 · euler / simple</span>
+          </div>
+          <div class="spec">
+            <span class="spec-k">Expected time</span>
+            <span class="spec-v mono" id="d-time">~2.5 min</span>
+            <span class="spec-n" id="d-time-note">measured, warm GPU</span>
+          </div>
+        </div>
+
+        <div class="callout" id="d-note">
+          <span class="callout-k">Why this works</span>
+          <p>The 5B model fits with latents and VAE headroom to spare. The encoder cannot join it,
+            so it streams from system RAM — that is the 75% of wall-clock nobody warns you about.</p>
+        </div>
+      </div>
+
+      <aside class="device-side">
+        <div class="meter-head">
+          <span>Typical VRAM split</span>
+          <span class="mono" id="d-meter-label">5.7 / 6.0 GB</span>
+        </div>
+        <div class="meter" role="img" aria-label="Estimated VRAM split" id="d-meter">
+          <span class="seg seg-w" style="width:56%"></span>
+          <span class="seg seg-a" style="width:28%"></span>
+          <span class="seg seg-h" style="width:16%"></span>
+        </div>
+        <ul class="legend">
+          <li><i class="sw sw-w"></i> model weights</li>
+          <li><i class="sw sw-a"></i> activations</li>
+          <li><i class="sw sw-h"></i> headroom / desktop</li>
+        </ul>
+        <div class="side-block">
+          <span class="spec-k">Launch flags</span>
+          <code class="cmd" id="d-flags">--reserve-vram 0.2</code>
+        </div>
+        <p class="fine" id="d-fine">Measured on this exact card. Other GPUs change the seconds,
+          not the shape of the curve.</p>
+      </aside>
+    </div>
+
+    <p class="est-note"><strong>Measured vs estimated.</strong> The 6 GB row is benchmarked.
+      Every other row is extrapolated from the VRAM model on this page — treat it as a starting
+      point, not a promise. <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/hardware.md" target="_blank" rel="noopener">Read the assumptions →</a></p>
+  </div>
+</section>
+
+<!-- ───────────────────────────── stack / elements ───────────────────────────── -->
+<section class="section alt" id="stack">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">02 — Every element</p>
+      <h2>Twelve parts. One of them is your bottleneck.</h2>
+      <p class="sub">A Wan graph is not magic and it is not one model. Each box below has a cost,
+        a failure mode, and a knob. On low-end hardware you are mostly managing the first two.</p>
+    </div>
+
+    <div class="pipeline" aria-label="Pipeline from prompt to video">
+      <div class="pnode"><span class="pn-k">input</span><strong>Prompt</strong></div>
+      <span class="parrow" aria-hidden="true">→</span>
+      <div class="pnode"><span class="pn-k">4.66 GB</span><strong>umt5 encoder</strong></div>
+      <span class="parrow" aria-hidden="true">→</span>
+      <div class="pnode accent"><span class="pn-k">3.4 GB · GPU</span><strong>5B UNet</strong></div>
+      <span class="parrow" aria-hidden="true">→</span>
+      <div class="pnode"><span class="pn-k">latent</span><strong>Sampler</strong></div>
+      <span class="parrow" aria-hidden="true">→</span>
+      <div class="pnode"><span class="pn-k">1.3 GB</span><strong>VAE decode</strong></div>
+      <span class="parrow" aria-hidden="true">→</span>
+      <div class="pnode"><span class="pn-k">output</span><strong>mp4</strong></div>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <span class="num">01</span>
+        <h3>GPU &amp; VRAM</h3>
+        <p>The card holds the diffusion model and the activations for the current frame. Everything
+          else — the encoder, the OS, the browser — competes for the same 6 GB.</p>
+        <p class="low">Free VRAM beats a faster GPU. Closing a browser can be worth
+          more than a tier upgrade.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">02</span>
+        <h3>The diffusion model</h3>
+        <p>Wan 2.2 TI2V-5B is a 5-billion-parameter transformer that denoises a video latent. It is
+          the only component that must sit fully on the GPU to be fast.</p>
+        <p class="low">At 3.3 GiB quantised it leaves ~1.5 GB for activations. At 5.4 GiB (Q8) it
+          does not, which is why Q8 is not an option on 6 GB.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">03</span>
+        <h3>GGUF quantisation</h3>
+        <p>Weights are compressed from 16-bit to 4-bit blocks (Q4_K_M). Quality loss is small at
+          Q4 and grows quickly below Q3. GGUF is the format; ComfyUI-GGUF is the loader.</p>
+        <p class="low">The whole trick. 10 GB fp16 → 3.3 GiB Q4_K_M, with the model still
+          recognisably the same model.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">04</span>
+        <h3>Text encoder</h3>
+        <p>umt5-xxl turns your prompt into conditioning vectors. It is enormous: 4.66 GB
+          dequantised, more than the video model.</p>
+        <p class="low">It does not fit next to the UNet, so it streams from system RAM and costs
+          60–125 s <em>per prompt</em>. This is the real low-end tax.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">05</span>
+        <h3>Conditioning &amp; CFG</h3>
+        <p>Classifier-free guidance mixes a positive and a negative prediction. CFG 1.0 means
+          “ignore the negative entirely”, which is what Turbo models are distilled for.</p>
+        <p class="low">CFG 1.0 halves the model passes and makes the negative prompt free to
+          delete. Keep CFG 6 for VACE; it is not distilled.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">06</span>
+        <h3>The latent</h3>
+        <p>Video is compressed 8× spatially and 4× temporally before sampling. 81 frames become
+          21 latent frames of 48 channels.</p>
+        <p class="low">This is why frame counts are 4n+1 and why 81 frames cost far less than 81×
+          a single image.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">07</span>
+        <h3>Sampler</h3>
+        <p>Steps, sampler and scheduler decide how the noise is walked down. Turbo needs 4 steps
+          with <code>euler</code> + <code>simple</code>; more steps buy polish, not structure.</p>
+        <p class="low">Time is linear in steps. Four is the floor; six is the only upgrade worth
+          paying for.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">08</span>
+        <h3>Sampling shift</h3>
+        <p><code>ModelSamplingSD3</code> with shift 8.0 biases sampling toward low noise. It is part
+          of the Turbo recipe, not a quality slider.</p>
+        <p class="low">Wrong shift looks like “washed out” or “burned contrast”. Leave it at 8.0
+          unless you are deliberately experimenting.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">09</span>
+        <h3>VAE</h3>
+        <p>The VAE decodes the latent back to pixels. Wan 2.2 and Wan 2.1 have different VAEs and
+          they are not interchangeable.</p>
+        <p class="low">Wrong VAE is the #1 cause of black, grey or discoloured video. 2.2 graph →
+          2.2 VAE; VACE graph → 2.1 VAE.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">10</span>
+        <h3>Resolution</h3>
+        <p>Cost is roughly quadratic in pixels, and activations are what overflow. 704×480 is the
+          model's trained size and the largest that fits in 6 GB.</p>
+        <p class="low">832×480 is +18% pixels but 1.8× the time. It crosses the VRAM line and starts
+          swapping. Do not.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">11</span>
+        <h3>Frames &amp; fps</h3>
+        <p>81 frames at 24 fps is 3.4 s. The same frames at 16 fps is a slower, more cinematic 5 s.
+          Frames cost time; fps costs nothing.</p>
+        <p class="low">Reduce frames before resolution when you are tight on memory — frames scale
+          linearly, resolution does not.</p>
+      </article>
+
+      <article class="card">
+        <span class="num">12</span>
+        <h3>Upscaler</h3>
+        <p>4× UltraSharp is a small ESRGAN that sharpens and enlarges decoded frames. It runs after
+          sampling, so it does not touch the model's VRAM budget.</p>
+        <p class="low">The 1080p path: render 864×480, upscale 4×, resize to 1920×1080. Real
+          pixels, interpolated detail.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── vram budget ───────────────────────────── -->
+<section class="section" id="budget">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">03 — The budget</p>
+      <h2>Where 6 GB actually goes.</h2>
+      <p class="sub">Two different memory pools, two different failure modes. The GPU runs out of
+        VRAM; the encoder runs out of patience in system RAM.</p>
+    </div>
+
+    <div class="budget-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>VRAM · 6.0 GB</h3>
+          <span class="mono muted">peak 5.7 GB</span>
+        </div>
+        <div class="stackbar" aria-hidden="true">
+          <span style="width:56%;background:linear-gradient(180deg,#f2ff59,#cfdc3f)"></span>
+          <span style="width:28%;background:linear-gradient(180deg,#7b5fd0,#49378b)"></span>
+          <span style="width:9%;background:#fabc25"></span>
+          <span style="width:7%;background:rgba(255,255,255,.14)"></span>
+        </div>
+        <ul class="rows">
+          <li><i class="sw" style="background:#d9e63f"></i><span>UNet Q4_K_M, resident</span><b>3.4 GB</b></li>
+          <li><i class="sw" style="background:#6d55b8"></i><span>attention + activations</span><b>1.5 GB</b></li>
+          <li><i class="sw" style="background:#fabc25"></i><span>VAE decode spike</span><b>0.6 GB</b></li>
+          <li><i class="sw" style="background:rgba(255,255,255,.22)"></i><span>desktop + driver</span><b>0.3 GB</b></li>
+        </ul>
+        <p class="fine">Latents are negligible: 81 frames → 21 × 60 × 88 × 48 values ≈ 10 MB.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>System RAM · 16 GB</h3>
+          <span class="mono muted">encoder streams</span>
+        </div>
+        <div class="stackbar" aria-hidden="true">
+          <span style="width:30%;background:linear-gradient(180deg,#fabc25,#d99e1b)"></span>
+          <span style="width:22%;background:#4d3762"></span>
+          <span style="width:48%;background:rgba(255,255,255,.07)"></span>
+        </div>
+        <ul class="rows">
+          <li><i class="sw" style="background:#fabc25"></i><span>umt5-xxl dequantised</span><b>4.7 GB</b></li>
+          <li><i class="sw" style="background:#4d3762"></i><span>ComfyUI + Python + torch</span><b>3.5 GB</b></li>
+          <li><i class="sw" style="background:rgba(255,255,255,.18)"></i><span>Windows, browser, pagefile</span><b>rest</b></li>
+        </ul>
+        <p class="fine">This is why 16 GB is the practical floor and 32 GB makes the run visibly smoother.</p>
+      </div>
+    </div>
+
+    <div class="split-note">
+      <div>
+        <h3>The offload, in one sentence</h3>
+        <p>The UNet gets the GPU because it is touched every step; the encoder gets system RAM
+          because it is touched once per prompt. Swapping that assignment is the difference between
+          4.5 and 24.7 seconds per step.</p>
+      </div>
+      <div class="kv">
+        <div><span class="mono">4.5 s</span><small>per step, UNet resident</small></div>
+        <div><span class="mono">24.7 s</span><small>per step, <code>--lowvram</code></small></div>
+        <div><span class="mono">5.5×</span><small>the same job, wrong flag</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── benchmarks ───────────────────────────── -->
+<section class="section alt" id="bench">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">04 — Benchmarks</p>
+      <h2>One machine, honest numbers.</h2>
+      <p class="sub">RTX 4050 Laptop · Ryzen 7 7435HS · 16 GB · ComfyUI 0.46.0 · torch 2.14.1.
+        Wall clock from submit to finished file, GPU idle beforehand. One run per point.</p>
+    </div>
+
+    <div class="chart">
+      <div class="chart-row">
+        <span class="chart-k">512 × 288</span>
+        <div class="bar"><span style="width:30%"></span></div>
+        <span class="chart-v mono">88 s</span>
+        <span class="chart-n">draft quality</span>
+      </div>
+      <div class="chart-row is-best">
+        <span class="chart-k">704 × 480</span>
+        <div class="bar"><span style="width:55%"></span></div>
+        <span class="chart-v mono">152–174 s</span>
+        <span class="chart-n">the sweet spot</span>
+      </div>
+      <div class="chart-row">
+        <span class="chart-k">832 × 480</span>
+        <div class="bar"><span style="width:100%"></span></div>
+        <span class="chart-v mono">293–296 s</span>
+        <span class="chart-n">VRAM cliff, poor value</span>
+      </div>
+      <div class="chart-row is-off">
+        <span class="chart-k">1920 × 1080</span>
+        <div class="bar"><span style="width:100%" class="hatch"></span></div>
+        <span class="chart-v mono">not possible</span>
+        <span class="chart-n">needs ~20 GB</span>
+      </div>
+    </div>
+
+    <div class="mini-grid">
+      <div class="panel tight">
+        <h3>Launch flags</h3>
+        <table class="tbl">
+          <thead><tr><th>Flags</th><th>Step</th><th>Peak</th></tr></thead>
+          <tbody>
+            <tr><td><code>--lowvram</code></td><td class="mono">24.7 s</td><td class="mono">3.8 GB</td></tr>
+            <tr class="hl"><td><code>--reserve-vram 0.2</code></td><td class="mono">4.5 s</td><td class="mono">5.7 GB</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel tight">
+        <h3>Other workloads</h3>
+        <table class="tbl">
+          <thead><tr><th>Job</th><th>Time</th></tr></thead>
+          <tbody>
+            <tr><td>VACE 33 f · 20 steps</td><td class="mono">~300 s</td></tr>
+            <tr><td>VACE 33 f + CausVid</td><td class="mono">~60–80 s</td></tr>
+            <tr><td>Face swap, 385 f</td><td class="mono">~6.7 min</td></tr>
+            <tr><td>4× upscale to 1080p</td><td class="mono">GPU-bound</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="est-note">Seconds do not transfer between GPUs; ratios do. 832×480 being 1.8× the
+      cost of 704×480 is a property of the 6 GB budget, not of this specific card.</p>
+  </div>
+</section>
+
+<!-- ───────────────────────────── workflows ───────────────────────────── -->
+<section class="section" id="workflows">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">05 — Workflows</p>
+      <h2>Four graphs. Drag, run, done.</h2>
+      <p class="sub">ComfyUI UI-format JSON. Copy them into <code>user/default/workflows</code> and
+        they appear in the sidebar, or drop one straight onto the canvas.</p>
+    </div>
+
+    <div class="wf-grid">
+      <article class="wf">
+        <div class="wf-top"><span class="pill ok">verified</span><span class="mono muted">11 nodes</span></div>
+        <h3>Text → video</h3>
+        <p>Prompt in, 3.4 s clip out. No negative prompt, no second encoder pass.</p>
+        <dl><div><dt>704×480</dt><dd>81 frames</dd></div><div><dt>4</dt><dd>steps</dd></div></dl>
+      </article>
+      <article class="wf">
+        <div class="wf-top"><span class="pill ok">verified</span><span class="mono muted">13 nodes</span></div>
+        <h3>Image → video</h3>
+        <p>Start frame plus a motion prompt. The official template with GGUF loaders swapped in.</p>
+        <dl><div><dt>704×480</dt><dd>81 frames</dd></div><div><dt>4</dt><dd>steps</dd></div></dl>
+      </article>
+      <article class="wf">
+        <div class="wf-top"><span class="pill ok">verified</span><span class="mono muted">14 nodes</span></div>
+        <h3>Character swap</h3>
+        <p>VACE 1.3B carries a reference character into a new scene. Not distilled: 20 steps, CFG 6.</p>
+        <dl><div><dt>~300 s</dt><dd>33 frames</dd></div><div><dt>1.3B</dt><dd>Q8_0</dd></div></dl>
+      </article>
+      <article class="wf">
+        <div class="wf-top"><span class="pill warn">experimental</span><span class="mono muted">14 nodes</span></div>
+        <h3>1080p export</h3>
+        <p>Sample at 864×480, upscale 4× with UltraSharp, resize to 1920×1080. Real pixels, invented detail.</p>
+        <dl><div><dt>1920×1080</dt><dd>output</dd></div><div><dt>4×</dt><dd>upscale</dd></div></dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── install ───────────────────────────── -->
+<section class="section alt" id="install">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">06 — Install</p>
+      <h2>From empty folder to first clip.</h2>
+      <p class="sub">Windows portable. Linux and macOS are in the docs, same five steps with a venv.</p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <h3><span>1</span> ComfyUI portable</h3>
+          <p>Download the <code>.7z</code> from the ComfyUI releases page and extract it so that
+            <code>ComfyUI_windows_portable\python_embeded\python.exe</code> exists.</p>
+          <a class="link" href="https://github.com/comfyanonymous/ComfyUI/releases" target="_blank" rel="noopener">ComfyUI releases ↗</a>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3><span>2</span> GGUF loader</h3>
+          <p>ComfyUI cannot read <code>.gguf</code> without this node.</p>
+          <div class="code">
+            <pre><code>git clone --depth 1 https://github.com/city96/ComfyUI-GGUF.git `
+  .\ComfyUI_windows_portable\ComfyUI\custom_nodes\ComfyUI-GGUF
+.\ComfyUI_windows_portable\python_embeded\python.exe -m pip install `
+  -r .\ComfyUI_windows_portable\ComfyUI\custom_nodes\ComfyUI-GGUF\requirements.txt</code></pre>
+            <button class="copy">copy</button>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3><span>3</span> Models</h3>
+          <p>Six files, ~9 GB, resumable. The script also converts the upscaler to safetensors.</p>
+          <div class="code">
+            <pre><code>powershell -ExecutionPolicy Bypass -File .\scripts\download_models.ps1</code></pre>
+            <button class="copy">copy</button>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3><span>4</span> Workflows</h3>
+          <p>Copy the four graphs into the sidebar folder.</p>
+          <div class="code">
+            <pre><code>Copy-Item .\workflows\*.json `
+  .\ComfyUI_windows_portable\ComfyUI\user\default\workflows\</code></pre>
+            <button class="copy">copy</button>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3><span>5</span> Run</h3>
+          <p>Open <code>http://127.0.0.1:8188</code>, pick a workflow, press Run.</p>
+          <div class="code">
+            <pre><code>.\scripts\run_comfyui.bat</code></pre>
+            <button class="copy">copy</button>
+          </div>
+        </div>
+      </li>
+    </ol>
+
+    <div class="warn-box">
+      <strong>Do not click “Install missing models”.</strong>
+      The template browser points at full-precision safetensors — 10 GB for the 5B model, 28–60 GB
+      for the 14B ones. On 6 GB they will never load. Use the GGUF graphs instead.
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── troubleshooting ───────────────────────────── -->
+<section class="section" id="fix">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">07 — When it breaks</p>
+      <h2>The eight failures you will actually hit.</h2>
+    </div>
+
+    <div class="acc">
+      <details open>
+        <summary>CUDA out of memory</summary>
+        <div class="acc-body">
+          <p>Close GPU apps first (browser, Discord, Steam). Then drop resolution 704×480 → 640×384
+            → 512×288, then frames 81 → 49 → 33. Only then try
+            <code>--lowvram</code>, which is 2.4× slower but peaks at 3.8 GB.</p>
+        </div>
+      </details>
+      <details>
+        <summary>A model is missing from the dropdown</summary>
+        <div class="acc-body">
+          <p>ComfyUI scans model folders once at startup — restart it. If it is still missing, the
+            file is in the wrong subfolder: <code>.gguf</code> goes in
+            <code>models/diffusion_models</code>, not <code>checkpoints</code>.</p>
+        </div>
+      </details>
+      <details>
+        <summary>The template wants 50 GB of models</summary>
+        <div class="acc-body">
+          <p>Ignore it. The templates reference fp16 checkpoints. Close the template browser and
+            open one of the four GGUF graphs instead.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Black, grey or discoloured video</summary>
+        <div class="acc-body">
+          <p>VAE mismatch. Wan 2.2 graphs need <code>wan2.2_vae.safetensors</code>; the VACE graph
+            needs <code>wan_2.1_vae.safetensors</code>. They are not interchangeable.</p>
+        </div>
+      </details>
+      <details>
+        <summary>It sits there for two minutes before sampling</summary>
+        <div class="acc-body">
+          <p>That is the encoder pass. 4.66 GB does not fit next to the UNet, so it streams from
+            RAM. A <code>Q3_K_M</code> encoder cuts it by ~40%; <code>--highvram</code> only OOMs.</p>
+        </div>
+      </details>
+      <details>
+        <summary>1080p graph dies at the upscale</summary>
+        <div class="acc-body">
+          <p>Select <code>UpscaleModelLoader</code> and press Ctrl+B to bypass it. The graph falls
+            back to a direct Lanczos resize — softer, but it never fails.</p>
+        </div>
+      </details>
+      <details>
+        <summary>VACE ignores the reference photo</summary>
+        <div class="acc-body">
+          <p>Use a clear, single-subject portrait. The image must be in input slot 5
+            (<code>reference_image</code>). Lower <code>strength</code> to 0.8–0.9 if the pose is
+            frozen.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Face swap finds no face</summary>
+        <div class="acc-body">
+          <p>YuNet needs both eyes and the mouth. Frontal, well-lit, at least ~150 px wide. Check
+            <code>last_src_crop.png</code> next to the output to see what the aligner saw.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── faq ───────────────────────────── -->
+<section class="section alt" id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">08 — Questions</p>
+      <h2>Short answers, no hedging.</h2>
+    </div>
+    <div class="acc">
+      <details>
+        <summary>Can I sample natively at 1080p?</summary>
+        <div class="acc-body"><p>No. 1920×1080 needs roughly 20 GB of VRAM for this model. The
+          1080p workflow renders at 864×480 and upscales; the file is 1080p, the detail is not.</p></div>
+      </details>
+      <details>
+        <summary>Why 704×480 and not 720p?</summary>
+        <div class="acc-body"><p>480p is the trained resolution. 720p is 2.25× the pixels and pushes
+          activations past 6 GB, which turns a 4.5 s step into a 35–40 s step.</p></div>
+      </details>
+      <details>
+        <summary>Why 4 steps?</summary>
+        <div class="acc-body"><p>Turbo is distilled for 4 steps at CFG 1.0. More steps add polish at
+          linear cost; they do not fix composition. VACE is a different, non-distilled model and
+          needs 20 steps at CFG 6.</p></div>
+      </details>
+      <details>
+        <summary>Can the text encoder go on the GPU?</summary>
+        <div class="acc-body"><p>On 6 GB, only if you free ~1.5 GB of VRAM or switch to the Q3_K_M
+          encoder (~2.7 GiB). The Q4 encoder never fits next to the UNet.</p></div>
+      </details>
+      <details>
+        <summary>Does this work on AMD or Apple?</summary>
+        <div class="acc-body"><p>AMD via ComfyUI-Zluda (Windows) or ROCm (Linux); Apple via MPS,
+          roughly 5–10× slower. Only NVIDIA was measured here. The GGUF files are the same.</p></div>
+      </details>
+      <details>
+        <summary>What is the difference between VACE and the face-swap script?</summary>
+        <div class="acc-body"><p>VACE generates a new clip from a photo and a prompt — motion is
+          invented. The script edits an existing video frame by frame — motion is preserved
+          exactly. Neither is a reliable identity lock at 1.3B / 128 px.</p></div>
+      </details>
+      <details>
+        <summary>Is the 1080p workflow tested?</summary>
+        <div class="acc-body"><p>No, and it is labelled experimental on purpose. The graph is sound
+          (480p sample → 4× upscale → resize) but the end-to-end run was not benchmarked on the
+          reference machine.</p></div>
+      </details>
+      <details>
+        <summary>Can I use this commercially?</summary>
+        <div class="acc-body"><p>Wan weights are Apache-2.0 and ComfyUI is GPL-3.0. Check the
+          upscaler licence, and note <code>inswapper_128</code> is research-only. Likeness rights
+          are a separate legal question.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <a class="brand" href="#top">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="9" fill="#f2ff59"/>
+          <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#211927" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>wan<b>·</b>6gb</span>
+      </a>
+      <p>An independent field guide to running Wan 2.2 on low-end GPUs. Not affiliated with
+        Comfy Org or Alibaba.</p>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h3>Docs</h3>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/installation.md" target="_blank" rel="noopener">Installation</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/models.md" target="_blank" rel="noopener">Models</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/workflows.md" target="_blank" rel="noopener">Workflows</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/performance.md" target="_blank" rel="noopener">Performance</a>
+      </div>
+      <div>
+        <h3>Hardware</h3>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/hardware.md" target="_blank" rel="noopener">VRAM tiers</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/faceswap.md" target="_blank" rel="noopener">Face swap</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener">Troubleshooting</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/faq.md" target="_blank" rel="noopener">FAQ</a>
+      </div>
+      <div>
+        <h3>Code</h3>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb" target="_blank" rel="noopener">Repository</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/tree/main/workflows" target="_blank" rel="noopener">Workflow JSON</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/issues" target="_blank" rel="noopener">Report a result</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap foot-base">
+    <span>© 2026 · MIT for code and prose</span>
+    <span class="mono">6 GB · 480p · 4 steps · still works</span>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>
