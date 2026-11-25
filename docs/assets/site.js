@@ -1,5 +1,5 @@
 /* ============================================================
-   wan·6gb — device picker, copy buttons, nav state
+   comfy·every — device picker, copy buttons, nav state
    No dependencies. Runs on the cheapest laptop that can open it.
    ============================================================ */
 

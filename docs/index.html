@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wan 2.2 on 6 GB — the low-end field guide</title>
-<meta name="description" content="Run Wan 2.2 video generation in ComfyUI on a 4–8 GB laptop GPU. Every element explained: quantisation, VRAM budget, text encoder, sampler, VAE, upscaler — with measured timings.">
+<title>ComfyUI on every system — the model matrix</title>
+<meta name="description" content="Which image and video model fits which GPU: 4 GB to 48 GB, the quant to download, the encoder token budget, the launch flags, and a measured 6 GB Wan 2.2 build.">
 <meta name="theme-color" content="#211927">
-<meta property="og:title" content="Wan 2.2 on 6 GB — the low-end field guide">
-<meta property="og:description" content="Video generation on laptop hardware, explained element by element. Measured on an RTX 4050 6 GB.">
+<meta property="og:title" content="ComfyUI on every system — the model matrix">
+<meta property="og:description" content="Image and video models for every GPU, 4 GB to 48 GB, plus a measured 6 GB Wan 2.2 build.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f2ff59'/><path d='M8 20l5-9 3 6 3-4 5 7' stroke='%23211927' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -18,8 +18,8 @@
 
 <div class="announce">
   <div class="wrap announce-inner">
-    <p><strong>Built for 6 GB laptops.</strong> Every number on this page was measured, not guessed.</p>
-    <a href="#bench">See the benchmarks
+    <p><strong>4 GB to 48 GB.</strong> One build measured end to end; every other tier sourced and labelled.</p>
+    <a href="#models">See the model matrix
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
     </a>
   </div>
@@ -32,18 +32,18 @@
         <rect width="32" height="32" rx="9" fill="#f2ff59"/>
         <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#211927" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span>wan<b>·</b>6gb</span>
+      <span>comfy<b>·</b>every</span>
     </a>
     <nav class="nav-links" aria-label="Sections">
       <a href="#device">Your device</a>
-      <a href="#stack">Elements</a>
-      <a href="#budget">VRAM</a>
+      <a href="#models">Models</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#outputs">Outputs</a>
       <a href="#bench">Benchmarks</a>
-      <a href="#workflows">Workflows</a>
       <a href="#install">Install</a>
     </nav>
     <div class="nav-actions">
-      <a class="btn btn-outline nav-cta" href="https://github.com/OVAIS69/comfyui-wan-6gb" target="_blank" rel="noopener">
+      <a class="btn btn-outline nav-cta" href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38v-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.87 2.34.67.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         <span>GitHub</span>
       </a>
@@ -73,15 +73,15 @@
       <div class="hg-node"><span class="hg-k">output</span><strong>mp4</strong></div>
     </div>
     <p class="eyebrow"><span class="dot"></span> Measured on an RTX 4050 Laptop · 6 GB · 16 GB RAM</p>
-    <h1>Video generation<br><span class="grad">on 6 GB.</span></h1>
+    <h1>Every model.<br><span class="grad">Every GPU.</span></h1>
     <p class="lede">
-      Wan 2.2 normally asks for 12–24 GB of VRAM and 30 GB of checkpoints.
-      This is the same model, quantised to 3.3 GB, running in ComfyUI on 6 GB —
-      with every element of the stack explained, and a real number attached to it.
+      From a 4 GB laptop to a 48 GB workstation: the image and video model that actually fits
+      your card, the quant to download, the token budget of its text encoder, and the file you
+      get out. The 6 GB Wan 2.2 build is measured end to end — 704×480, 81 frames, 2.5 minutes.
     </p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="#install">Install in 5 steps</a>
-      <a class="btn btn-outline" href="#device">Find your device</a>
+      <a class="btn btn-primary" href="#models">Find your model</a>
+      <a class="btn btn-outline" href="#install">Install in 5 steps</a>
     </div>
     <dl class="stats">
       <div><dt>2.5 min</dt><dd>per 3.4 s clip at 480p</dd></div>
@@ -186,15 +186,211 @@
 
     <p class="est-note"><strong>Measured vs estimated.</strong> The 6 GB row is benchmarked.
       Every other row is extrapolated from the VRAM model on this page — treat it as a starting
-      point, not a promise. <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/hardware.md" target="_blank" rel="noopener">Read the assumptions →</a></p>
+      point, not a promise. <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/model-matrix.md" target="_blank" rel="noopener">Read the assumptions →</a></p>
   </div>
 </section>
 
 <!-- ───────────────────────────── stack / elements ───────────────────────────── -->
+<!-- ───────────────────────────── model matrix ───────────────────────────── -->
+<section class="section alt" id="models">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">02 — Models</p>
+      <h2>Every tier has one right answer.</h2>
+      <p class="sub">One image model and one video model per VRAM tier, with the file that fits, the
+        encoder that does not, and the quant worth downloading. The 6 GB row is measured here; the
+        rest come from published file sizes and vendor minimums, and are labelled as estimates.</p>
+    </div>
+
+    <div class="mini-grid">
+      <div class="panel tight">
+        <div class="panel-head"><h3>Image</h3><span class="mono muted">4 → 48 GB</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>VRAM</th><th>Model</th><th>Disk</th><th>Steps</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">4</td><td>SD 1.5 · Anima Q4</td><td class="mono">2.1 GB</td><td class="mono">20–25</td></tr>
+              <tr class="hl"><td class="mono">6</td><td>FLUX.2 Klein 4B distilled</td><td class="mono">4.4 GB</td><td class="mono">4</td></tr>
+              <tr><td class="mono">8</td><td>Z-Image Turbo Q8</td><td class="mono">6.5 GB</td><td class="mono">8</td></tr>
+              <tr><td class="mono">12</td><td>FLUX.1 dev Q8 · Z-Image fp8</td><td class="mono">12 GB</td><td class="mono">20 / 8</td></tr>
+              <tr><td class="mono">16</td><td>HiDream I1 dev fp8</td><td class="mono">17.1 GB</td><td class="mono">28</td></tr>
+              <tr><td class="mono">24</td><td>Qwen-Image fp8</td><td class="mono">20.4 GB</td><td class="mono">50 → 8</td></tr>
+              <tr><td class="mono">48</td><td>Qwen-Image BF16 · FLUX.2 dev</td><td class="mono">40.9 GB</td><td class="mono">50</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">Qwen-Image's 50 steps become 8 with the Lightning LoRA. FLUX.2 dev is 32B and
+          needs ~64 GB at BF16 — the 24 GB row is the fp8-mixed build with offload.</p>
+      </div>
+
+      <div class="panel tight">
+        <div class="panel-head"><h3>Video</h3><span class="mono muted">4 → 48 GB</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>VRAM</th><th>Model</th><th>Disk</th><th>Steps</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">4</td><td>Wan 2.1 1.3B Q4 + CausVid</td><td class="mono">1.1 GB</td><td class="mono">4</td></tr>
+              <tr class="hl"><td class="mono">6</td><td>Wan 2.2 TI2V-5B Q4_K_M</td><td class="mono">3.3 GB</td><td class="mono">4</td></tr>
+              <tr><td class="mono">8</td><td>Wan 2.2 TI2V-5B Q5_K_M</td><td class="mono">4.1 GB</td><td class="mono">4</td></tr>
+              <tr><td class="mono">12</td><td>Wan 2.2 5B Q8_0</td><td class="mono">5.4 GB</td><td class="mono">4</td></tr>
+              <tr><td class="mono">16</td><td>HunyuanVideo 1.5 fp8</td><td class="mono">8.3 GB</td><td class="mono">8–12</td></tr>
+              <tr><td class="mono">24</td><td>Wan 2.2 A14B fp8</td><td class="mono">28.6 GB</td><td class="mono">4–20</td></tr>
+              <tr><td class="mono">48</td><td>LTX-2.3 fp8 · Wan 2.2 A14B BF16</td><td class="mono">27.1 GB</td><td class="mono">20</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">The 14B Wan is a mixture of two noise experts at 14.29 GB each in fp8. LTX-2.3
+          generates audio and video together and needs Gemma 3 12B as its encoder.</p>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <strong>The encoder is the trap.</strong>
+      The text encoder is frequently larger than the model you are excited about: T5-XXL is 9.5 GB,
+      Qwen2.5-VL 7B is 16 GB in fp16, Mistral Small is ~24 GB. It usually runs from system RAM, so
+      it is not in the VRAM budget — but it is why 16 GB of RAM is the floor, and why the first
+      60–120 s of a prompt on a small card is nothing but text.
+      <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/model-matrix.md" target="_blank" rel="noopener">Full matrix ↗</a>
+    </div>
+
+    <p class="est-note">The rule behind every row: <code>VRAM ≈ weights on disk × 1.6</code> for video
+      at 480p, and <code>VRAM ≈ weights + 1.5 GB</code> for images at 1 MP. Q4_K_M is the last stop
+      before quality falls off a cliff.</p>
+  </div>
+</section>
+
+<!-- ───────────────────────────── tokens ───────────────────────────── -->
+<section class="section" id="tokens">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">03 — Tokens</p>
+      <h2>Your prompt has a budget.</h2>
+      <p class="sub">Text is tokenised and encoded before a single denoising step runs. Every encoder
+        has a hard limit, and on low-end hardware that pass is often the largest cost of the job —
+        75–80% of a clip on 6 GB.</p>
+    </div>
+
+    <div class="mini-grid">
+      <div class="panel tight">
+        <div class="panel-head"><h3>Max prompt tokens</h3><span class="mono muted">per encoder</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>Encoder</th><th>Used by</th><th>Tokens</th></tr></thead>
+            <tbody>
+              <tr><td>CLIP-L / G</td><td>SD 1.5, SDXL, FLUX.1</td><td class="mono">77</td></tr>
+              <tr><td>T5-XXL</td><td>FLUX.1, SD 3.5, Chroma</td><td class="mono">512</td></tr>
+              <tr><td>UMT5-XXL</td><td>Wan 2.1 / 2.2, VACE</td><td class="mono">512</td></tr>
+              <tr><td>Qwen2.5-VL 7B</td><td>Qwen-Image, HunyuanVideo 1.5</td><td class="mono">512</td></tr>
+              <tr><td>Qwen3 4B / 8B</td><td>Z-Image, FLUX.2 Klein, Anima</td><td class="mono">512</td></tr>
+              <tr><td>Mistral Small 3.1</td><td>FLUX.2 dev</td><td class="mono">512</td></tr>
+              <tr><td>Gemma 3 12B</td><td>LTX-2 / 2.3</td><td class="mono">512</td></tr>
+              <tr><td>T5 (padded)</td><td>CogVideoX</td><td class="mono">226</td></tr>
+              <tr><td>T5 (Mochi)</td><td>Mochi 1</td><td class="mono">256</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">CLIP's 77 is architectural: past it, text is silently dropped. The 512s are
+          pipeline settings — Z-Image's rotary positions allow up to 1536.</p>
+      </div>
+
+      <div class="panel tight">
+        <div class="panel-head"><h3>What a prompt costs</h3><span class="mono muted">6 GB, measured</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>Prompt</th><th>Tokens</th><th>Encode</th></tr></thead>
+            <tbody>
+              <tr><td><code>a fox in snow</code></td><td class="mono">4</td><td class="mono">~55 s</td></tr>
+              <tr><td>20-word scene</td><td class="mono">28</td><td class="mono">~65 s</td></tr>
+              <tr><td>60-word scene</td><td class="mono">85</td><td class="mono">~85 s</td></tr>
+              <tr><td>200-word scene</td><td class="mono">280</td><td class="mono">~120 s</td></tr>
+              <tr class="hl"><td>350-word scene</td><td class="mono">490</td><td class="mono">~130 s</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">The encoder weights are the fixed cost; the tokens are the second term. A
+          4-token prompt still costs ~55 s.</p>
+      </div>
+    </div>
+
+    <div class="split-note">
+      <div>
+        <h3>Three ways to stop paying for text</h3>
+        <p>Delete the negative prompt at CFG 1.0 — it is mathematically ignored, so encoding it is
+          pure waste. Batch several clips from one prompt so one encode serves all of them. And move
+          the encoder onto the GPU: that is the real difference between an 8 GB card and a 12 GB one.</p>
+      </div>
+      <div class="kv">
+        <div><span class="mono">~120 s</span><small>encode, CPU, 6 GB</small></div>
+        <div><span class="mono">8–15 s</span><small>encode, GPU, 12 GB</small></div>
+        <div><span class="mono">75–80%</span><small>of a 3.4 s clip on 6 GB</small></div>
+      </div>
+    </div>
+
+    <p class="est-note">Full breakdown, including how tokens scale with encoder size and what does
+      <em>not</em> help: <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/tokens.md" target="_blank" rel="noopener">docs/tokens.md ↗</a></p>
+  </div>
+</section>
+
+<!-- ───────────────────────────── outputs ───────────────────────────── -->
+<section class="section alt" id="outputs">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="kicker">04 — Outputs</p>
+      <h2>What lands in the output folder.</h2>
+      <p class="sub">Resolution, duration and file size per tier. Renders are gitignored, so the
+        repository stays ~100 KB — these are the specs each tier produces, not somebody else's
+        gallery.</p>
+    </div>
+
+    <div class="mini-grid">
+      <div class="panel tight">
+        <div class="panel-head"><h3>Video</h3><span class="mono muted">h264 MP4 · 24 fps</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>VRAM</th><th>Output</th><th>Length</th><th>Size</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">4</td><td>512×288</td><td class="mono">1.4–2.0 s</td><td class="mono">0.5–1.5 MB</td></tr>
+              <tr class="hl"><td class="mono">6</td><td>704×480</td><td class="mono">3.4 s</td><td class="mono">1.5–3 MB</td></tr>
+              <tr><td class="mono">12</td><td>832×480 · 121 f</td><td class="mono">5.0 s</td><td class="mono">3–6 MB</td></tr>
+              <tr><td class="mono">24</td><td>1280×720</td><td class="mono">3.4–5.0 s</td><td class="mono">4–9 MB</td></tr>
+              <tr><td class="mono">32+</td><td>1280×720 + audio</td><td class="mono">5.0 s</td><td class="mono">8–20 MB</td></tr>
+              <tr><td class="mono">1080p</td><td>1920×1080 upscaled</td><td class="mono">3.4 s</td><td class="mono">8–25 MB</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">The 1080p path samples at 864×480, upscales 4× with UltraSharp and resizes.
+          A true 1920×1080 file; interpolated detail.</p>
+      </div>
+
+      <div class="panel tight">
+        <div class="panel-head"><h3>Images</h3><span class="mono muted">PNG · 8-bit default</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>Model</th><th>Resolution</th><th>Size</th></tr></thead>
+            <tbody>
+              <tr><td>SD 1.5</td><td class="mono">512×512</td><td class="mono">0.4–0.8 MB</td></tr>
+              <tr><td>FLUX.2 Klein / Z-Image</td><td class="mono">1024×1024</td><td class="mono">1.5–3 MB</td></tr>
+              <tr><td>HiDream I1</td><td class="mono">1024×1024</td><td class="mono">1.5–3 MB</td></tr>
+              <tr><td>Qwen-Image</td><td class="mono">1328×1328</td><td class="mono">3–6 MB</td></tr>
+              <tr><td>FLUX.2 dev</td><td class="mono">up to 4 MP</td><td class="mono">6–15 MB</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">16-bit PNG, 32-bit EXR and 10-bit AVIF are supported if the output is going
+          into a grading pipeline.</p>
+      </div>
+    </div>
+
+    <p class="est-note">Two honest notes from the measured files: 480p reads as 480p on a 27" monitor,
+      and 3.4 s is enough for a loop or a cutaway, not a scene. Specs and sample prompts:
+      <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/outputs.md" target="_blank" rel="noopener">docs/outputs.md ↗</a></p>
+  </div>
+</section>
+
 <section class="section alt" id="stack">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">02 — Every element</p>
+      <p class="kicker">05 — Every element</p>
       <h2>Twelve parts. One of them is your bottleneck.</h2>
       <p class="sub">A Wan graph is not magic and it is not one model. Each box below has a cost,
         a failure mode, and a knob. On low-end hardware you are mostly managing the first two.</p>
@@ -330,7 +526,7 @@
 <section class="section" id="budget">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">03 — The budget</p>
+      <p class="kicker">06 — The budget</p>
       <h2>Where 6 GB actually goes.</h2>
       <p class="sub">Two different memory pools, two different failure modes. The GPU runs out of
         VRAM; the encoder runs out of patience in system RAM.</p>
@@ -396,7 +592,7 @@
 <section class="section alt" id="bench">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">04 — Benchmarks</p>
+      <p class="kicker">07 — Benchmarks</p>
       <h2>One machine, honest numbers.</h2>
       <p class="sub">RTX 4050 Laptop · Ryzen 7 7435HS · 16 GB · ComfyUI 0.46.0 · torch 2.14.1.
         Wall clock from submit to finished file, GPU idle beforehand. One run per point.</p>
@@ -463,7 +659,7 @@
 <section class="section" id="workflows">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">05 — Workflows</p>
+      <p class="kicker">08 — Workflows</p>
       <h2>Four graphs. Drag, run, done.</h2>
       <p class="sub">ComfyUI UI-format JSON. Copy them into <code>user/default/workflows</code> and
         they appear in the sidebar, or drop one straight onto the canvas.</p>
@@ -502,7 +698,7 @@
 <section class="section alt" id="install">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">06 — Install</p>
+      <p class="kicker">09 — Install</p>
       <h2>From empty folder to first clip.</h2>
       <p class="sub">Windows portable. Linux and macOS are in the docs, same five steps with a venv.</p>
     </div>
@@ -574,7 +770,7 @@
 <section class="section" id="fix">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">07 — When it breaks</p>
+      <p class="kicker">10 — When it breaks</p>
       <h2>The eight failures you will actually hit.</h2>
     </div>
 
@@ -646,7 +842,7 @@
 <section class="section alt" id="faq">
   <div class="wrap">
     <div class="section-head">
-      <p class="kicker">08 — Questions</p>
+      <p class="kicker">11 — Questions</p>
       <h2>Short answers, no hedging.</h2>
     </div>
     <div class="acc">
@@ -708,38 +904,39 @@
           <rect width="32" height="32" rx="9" fill="#f2ff59"/>
           <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#211927" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>wan<b>·</b>6gb</span>
+        <span>comfy<b>·</b>every</span>
       </a>
-      <p>An independent field guide to running Wan 2.2 on low-end GPUs. Not affiliated with
-        Comfy Org or Alibaba.</p>
+      <p>An independent field guide to running ComfyUI on any GPU — measured on a 6 GB laptop.
+        Not affiliated with Comfy Org or Alibaba.</p>
     </div>
     <div class="foot-cols">
       <div>
         <h3>Docs</h3>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/installation.md" target="_blank" rel="noopener">Installation</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/models.md" target="_blank" rel="noopener">Models</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/workflows.md" target="_blank" rel="noopener">Workflows</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/performance.md" target="_blank" rel="noopener">Performance</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/model-matrix.md" target="_blank" rel="noopener">Model matrix</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/tokens.md" target="_blank" rel="noopener">Tokens</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/outputs.md" target="_blank" rel="noopener">Outputs</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/installation.md" target="_blank" rel="noopener">Installation</a>
       </div>
       <div>
-        <h3>Hardware</h3>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/hardware.md" target="_blank" rel="noopener">VRAM tiers</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/faceswap.md" target="_blank" rel="noopener">Face swap</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener">Troubleshooting</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/docs/faq.md" target="_blank" rel="noopener">FAQ</a>
+        <h3>The 6 GB build</h3>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/models.md" target="_blank" rel="noopener">Models</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/workflows.md" target="_blank" rel="noopener">Workflows</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/performance.md" target="_blank" rel="noopener">Performance</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/hardware.md" target="_blank" rel="noopener">VRAM tiers</a>
       </div>
       <div>
         <h3>Code</h3>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb" target="_blank" rel="noopener">Repository</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/tree/main/workflows" target="_blank" rel="noopener">Workflow JSON</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
-        <a href="https://github.com/OVAIS69/comfyui-wan-6gb/issues" target="_blank" rel="noopener">Report a result</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">Repository</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/tree/main/workflows" target="_blank" rel="noopener">Workflow JSON</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/faceswap.md" target="_blank" rel="noopener">Face swap</a>
+        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
       </div>
     </div>
   </div>
+
   <div class="wrap foot-base">
     <span>© 2026 · MIT for code and prose</span>
-    <span class="mono">6 GB · 480p · 4 steps · still works</span>
+    <span class="mono">4–48 GB · image + video · one measured build</span>
   </div>
 </footer>
 

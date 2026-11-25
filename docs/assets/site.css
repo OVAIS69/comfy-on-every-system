@@ -1192,3 +1192,8 @@ p { margin: 0; }
     transition-duration: .001ms !important;
   }
 }
+
+/* Wide tables inside a panel scroll instead of breaking the grid. */
+.tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tscroll .tbl { min-width: 360px; }
+.tscroll .tbl th:last-child, .tscroll .tbl td:last-child { text-align: right; }
