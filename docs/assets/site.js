@@ -6,6 +6,8 @@
 (function () {
   "use strict";
 
+  var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   /* ------------------------------------------------------------
      Device table.
      Only the 6 GB row is measured. Every other row is an
@@ -337,6 +339,167 @@
     }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
 
     targets.forEach(function (t) { obs.observe(t.el); });
+  }
+
+  /* ------------------------------------------------------------
+     Entry animations, ReactBits style: masked words on section
+     titles, masked letters on the giant words, blur-in on the
+     supporting copy, and a count-up on the hero stats. All of it
+     decorates text that already exists — with motion reduced or
+     script off, the page reads exactly as authored.
+     ------------------------------------------------------------ */
+
+  function countUp(el) {
+    var text = el.textContent;
+    if (!/\d/.test(text)) return;
+    var start = window.performance.now();
+
+    function frame(now) {
+      var progress = Math.min(1, (now - start) / 1100);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = text.replace(/\d+(?:\.\d+)?/g, function (num) {
+        var decimals = (num.split(".")[1] || "").length;
+        return (parseFloat(num) * eased).toFixed(decimals);
+      });
+      if (progress < 1) window.requestAnimationFrame(frame);
+    }
+
+    window.requestAnimationFrame(frame);
+  }
+
+  if (!calm) {
+    var watcher = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("in");
+        watcher.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.12 });
+
+    function splitMasked(el, byChar) {
+      var text = el.textContent.replace(/\s+/g, " ").trim();
+      if (!text) return;
+
+      el.textContent = "";
+      el.classList.add("is-split");
+
+      (byChar ? text.split("") : text.split(" ")).forEach(function (part, i) {
+        var mask = document.createElement("span");
+        mask.className = byChar ? "sp-c" : "sp-w";
+
+        var piece = document.createElement("span");
+        piece.textContent = byChar && part === " " ? "\u00a0" : part;
+        piece.style.setProperty("--i", i);
+
+        mask.appendChild(piece);
+        el.appendChild(mask);
+        if (!byChar) el.appendChild(document.createTextNode(" "));
+      });
+    }
+
+    function splitBlur(el) {
+      var text = el.textContent.replace(/\s+/g, " ").trim();
+      if (!text) return;
+
+      el.textContent = "";
+      el.classList.add("is-blur");
+
+      text.split(" ").forEach(function (word, i) {
+        var piece = document.createElement("span");
+        piece.className = "bw";
+        piece.textContent = word;
+        piece.style.setProperty("--i", i);
+
+        el.appendChild(piece);
+        el.appendChild(document.createTextNode(" "));
+      });
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".h2, .cta h2"), function (el) {
+      if (el.children.length) return;
+      var head = el.closest(".section-head");
+      if (head) head.classList.remove("reveal");
+      splitMasked(el, false);
+      watcher.observe(el);
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".giant"), function (el) {
+      if (el.children.length) return;
+      el.setAttribute("aria-label", el.textContent.trim());
+      splitMasked(el, true);
+      watcher.observe(el);
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".sub"), function (el) {
+      if (el.children.length) return;
+      splitBlur(el);
+      watcher.observe(el);
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".cards, .wf-grid, .mini-grid"), function (grid) {
+      grid.classList.add("stagger");
+      Array.prototype.forEach.call(grid.children, function (child, i) {
+        child.style.setProperty("--i", i);
+        watcher.observe(child);
+      });
+    });
+
+    /* The hero stats count up once the type has landed. */
+    window.setTimeout(function () {
+      Array.prototype.forEach.call(document.querySelectorAll(".stats dt"), countUp);
+    }, 1700);
+  }
+
+  /* ------------------------------------------------------------
+     Mobile menu. The desktop links are hidden under 1180px, so
+     this is the only way to reach a section on a phone.
+     ------------------------------------------------------------ */
+
+  var burger = document.querySelector(".nav-burger");
+  var menu = document.getElementById("mobile-menu");
+
+  function setMenu(open) {
+    if (!burger || !menu) return;
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+    burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    menu.classList.toggle("is-open", open);
+  }
+
+  if (burger && menu) {
+    burger.addEventListener("click", function () {
+      setMenu(burger.getAttribute("aria-expanded") !== "true");
+    });
+
+    menu.addEventListener("click", function (event) {
+      if (event.target.closest("a")) setMenu(false);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") setMenu(false);
+    });
+  }
+
+  /* ------------------------------------------------------------
+     Reveal blocks as they come into view. Cosmetic only: if the
+     observer is missing, or motion is reduced, everything is shown.
+     ------------------------------------------------------------ */
+
+  var reveals = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+
+  if (!reveals.length) {
+    /* nothing to do */
+  } else if (!("IntersectionObserver" in window) || calm) {
+    reveals.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("in");
+        seen.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+
+    reveals.forEach(function (el) { seen.observe(el); });
   }
 
   /* ------------------------------------------------------------

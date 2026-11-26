@@ -5,23 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ComfyUI on every system — the model matrix</title>
 <meta name="description" content="Which image and video model fits which GPU: 4 GB to 48 GB, the quant to download, the encoder token budget, the launch flags, and a measured 6 GB Wan 2.2 build.">
-<meta name="theme-color" content="#211927">
+<meta name="theme-color" content="#000000">
 <meta property="og:title" content="ComfyUI on every system — the model matrix">
 <meta property="og:description" content="Image and video models for every GPU, 4 GB to 48 GB, plus a measured 6 GB Wan 2.2 build.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f2ff59'/><path d='M8 20l5-9 3 6 3-4 5 7' stroke='%23211927' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<meta property="og:image" content="https://comfyui-wan-6gb-docs.vercel.app/assets/img/art-chrome.jpg">
+<meta property="og:url" content="https://comfyui-wan-6gb-docs.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f2ff59'/><path d='M8 20l5-9 3 6 3-4 5 7' stroke='%23000000' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="preload" href="assets/fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
+<noscript><style>.reveal { opacity: 1; transform: none; }</style></noscript>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<div class="announce">
-  <div class="wrap announce-inner">
-    <p><strong>4 GB to 48 GB.</strong> One build measured end to end; every other tier sourced and labelled.</p>
-    <a href="#models">See the model matrix
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-    </a>
+<div class="intro" aria-hidden="true">
+  <div class="intro-inner">
+    <svg class="intro-mark" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="#f2ff59"/>
+      <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#000000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <p class="intro-word">comfy<span>·</span>every</p>
+    <div class="intro-rule"><i></i></div>
+  </div>
+</div>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <div class="ticker-half">
+      <span><b>4 GB → 48 GB</b></span>
+      <span>one build measured end to end</span>
+      <span>9 GB of models, not 30</span>
+      <span>704 × 480 · 81 frames · 4 steps</span>
+      <span>2.5 minutes per clip</span>
+      <span>RTX 4050 Laptop · 6 GB</span>
+    </div>
+    <div class="ticker-half">
+      <span><b>4 GB → 48 GB</b></span>
+      <span>one build measured end to end</span>
+      <span>9 GB of models, not 30</span>
+      <span>704 × 480 · 81 frames · 4 steps</span>
+      <span>2.5 minutes per clip</span>
+      <span>RTX 4050 Laptop · 6 GB</span>
+    </div>
   </div>
 </div>
 
@@ -30,10 +58,11 @@
     <a class="brand" href="#top">
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
         <rect width="32" height="32" rx="9" fill="#f2ff59"/>
-        <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#211927" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#000000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <span>comfy<b>·</b>every</span>
     </a>
+
     <nav class="nav-links" aria-label="Sections">
       <a href="#device">Your device</a>
       <a href="#models">Models</a>
@@ -42,12 +71,26 @@
       <a href="#bench">Benchmarks</a>
       <a href="#install">Install</a>
     </nav>
+
     <div class="nav-actions">
-      <a class="btn btn-outline nav-cta" href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">
-        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38v-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.87 2.34.67.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        <span>GitHub</span>
+      <a class="icon-btn" href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener" aria-label="Repository on GitHub">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38v-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.23 1.88.87 2.34.67.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       </a>
-      <a class="btn btn-primary nav-cta" href="#install">Install</a>
+      <a class="btn btn-light" href="#install">Install</a>
+      <button class="nav-burger" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <i></i><i></i><i></i>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="wrap">
+      <a href="#device">Your device</a>
+      <a href="#models">Models</a>
+      <a href="#tokens">Tokens</a>
+      <a href="#outputs">Outputs</a>
+      <a href="#bench">Benchmarks</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
   </div>
 </header>
@@ -56,33 +99,40 @@
 
 <!-- ───────────────────────────── hero ───────────────────────────── -->
 <section class="hero">
-  <div class="hero-glow" aria-hidden="true"></div>
-  <div class="hero-grid" aria-hidden="true"></div>
-  <div class="wrap hero-inner">
-    <div class="hero-graph" aria-hidden="true">
-      <div class="hg-node"><span class="hg-k">input</span><strong>prompt</strong></div>
-      <span class="hg-wire"></span>
-      <div class="hg-node"><span class="hg-k">4.66 GB</span><strong>umt5</strong></div>
-      <span class="hg-wire"></span>
-      <div class="hg-node is-hot"><span class="hg-k">3.4 GB · GPU</span><strong>5B UNet</strong></div>
-      <span class="hg-wire"></span>
-      <div class="hg-node"><span class="hg-k">latent</span><strong>sampler</strong></div>
-      <span class="hg-wire"></span>
-      <div class="hg-node"><span class="hg-k">1.3 GB</span><strong>VAE</strong></div>
-      <span class="hg-wire"></span>
-      <div class="hg-node"><span class="hg-k">output</span><strong>mp4</strong></div>
+  <div class="hero-marquee" aria-hidden="true">
+    <div class="marquee">
+      <div class="marquee-track">
+        <div class="mrow yellow"><div class="mrow-half"><span>EVERY MODEL</span><span>EVERY MODEL</span></div></div>
+        <div class="mrow yellow"><div class="mrow-half"><span>EVERY MODEL</span><span>EVERY MODEL</span></div></div>
+      </div>
     </div>
+    <div class="marquee rev">
+      <div class="marquee-track">
+        <div class="mrow outline"><div class="mrow-half"><span>EVERY GPU</span><span>EVERY GPU</span></div></div>
+        <div class="mrow outline"><div class="mrow-half"><span>EVERY GPU</span><span>EVERY GPU</span></div></div>
+      </div>
+    </div>
+    <div class="marquee">
+      <div class="marquee-track">
+        <div class="mrow plum"><div class="mrow-half"><span>YOURS TO RUN</span><span>YOURS TO RUN</span></div></div>
+        <div class="mrow plum"><div class="mrow-half"><span>YOURS TO RUN</span><span>YOURS TO RUN</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap hero-body">
     <p class="eyebrow"><span class="dot"></span> Measured on an RTX 4050 Laptop · 6 GB · 16 GB RAM</p>
-    <h1>Every model.<br><span class="grad">Every GPU.</span></h1>
+    <h1>The model matrix<br>for <em>every GPU</em></h1>
     <p class="lede">
       From a 4 GB laptop to a 48 GB workstation: the image and video model that actually fits
       your card, the quant to download, the token budget of its text encoder, and the file you
       get out. The 6 GB Wan 2.2 build is measured end to end — 704×480, 81 frames, 2.5 minutes.
     </p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="#models">Find your model</a>
-      <a class="btn btn-outline" href="#install">Install in 5 steps</a>
+      <a class="btn btn-yellow" href="#models">Find your model</a>
+      <a class="btn btn-ghost" href="#install">Install in 5 steps</a>
     </div>
+
     <dl class="stats">
       <div><dt>2.5 min</dt><dd>per 3.4 s clip at 480p</dd></div>
       <div><dt>9 GB</dt><dd>of models, not 30</dd></div>
@@ -95,9 +145,9 @@
 <!-- ───────────────────────────── device picker ───────────────────────────── -->
 <section class="section" id="device">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">01 — Your hardware</p>
-      <h2>Pick your VRAM. Get a build that fits.</h2>
+      <h2 class="h2">Pick your VRAM. Get a build that fits.</h2>
       <p class="sub">The only number that decides your configuration is free VRAM. Everything below
         changes with it: the quant, the encoder placement, the resolution, the frame count, and
         whether the fast path is even possible.</p>
@@ -112,7 +162,7 @@
       <button class="chip" data-gb="24" aria-pressed="false">24 GB</button>
     </div>
 
-    <div class="device-card" aria-live="polite">
+    <div class="device-card">
       <div class="device-main">
         <div class="device-head">
           <span class="badge" id="d-badge">Recommended</span>
@@ -120,7 +170,7 @@
           <p id="d-verdict">The configuration this whole site is measured on.</p>
         </div>
 
-        <div class="spec-grid">
+        <div class="spec-grid" aria-live="polite">
           <div class="spec">
             <span class="spec-k">Diffusion model</span>
             <span class="spec-v mono" id="d-model">Wan22-Turbo-Q4_K_M.gguf</span>
@@ -190,58 +240,74 @@
   </div>
 </section>
 
-<!-- ───────────────────────────── stack / elements ───────────────────────────── -->
-<!-- ───────────────────────────── model matrix ───────────────────────────── -->
-<section class="section alt" id="models">
+<!-- ───────────────────────────── models ───────────────────────────── -->
+<section class="section dark" id="models">
   <div class="wrap">
-    <div class="section-head">
-      <p class="kicker">02 — Models</p>
-      <h2>Every tier has one right answer.</h2>
-      <p class="sub">One image model and one video model per VRAM tier, with the file that fits, the
-        encoder that does not, and the quant worth downloading. The 6 GB row is measured here; the
-        rest come from published file sizes and vendor minimums, and are labelled as estimates.</p>
+    <div class="feature">
+      <div class="feature-copy">
+        <p class="kicker">02 — Models</p>
+        <h2 class="giant">Image</h2>
+        <p class="sub">One image model per VRAM tier, with the file that fits, the encoder that does
+          not, and the quant worth downloading. The 6 GB row is measured here; the rest come from
+          published file sizes and vendor minimums, and are labelled as estimates.</p>
+      </div>
+      <div class="feature-art">
+        <img src="assets/img/art-image.jpg" alt="Illustration: a stone monolith in a desert at dusk" loading="lazy" width="1392" height="752">
+        <span class="art-tag"><i></i> 1024 × 1024 · PNG</span>
+      </div>
     </div>
 
-    <div class="mini-grid">
-      <div class="panel tight">
-        <div class="panel-head"><h3>Image</h3><span class="mono muted">4 → 48 GB</span></div>
-        <div class="tscroll">
-          <table class="tbl">
-            <thead><tr><th>VRAM</th><th>Model</th><th>Disk</th><th>Steps</th></tr></thead>
-            <tbody>
-              <tr><td class="mono">4</td><td>SD 1.5 · Anima Q4</td><td class="mono">2.1 GB</td><td class="mono">20–25</td></tr>
-              <tr class="hl"><td class="mono">6</td><td>FLUX.2 Klein 4B distilled</td><td class="mono">4.4 GB</td><td class="mono">4</td></tr>
-              <tr><td class="mono">8</td><td>Z-Image Turbo Q8</td><td class="mono">6.5 GB</td><td class="mono">8</td></tr>
-              <tr><td class="mono">12</td><td>FLUX.1 dev Q8 · Z-Image fp8</td><td class="mono">12 GB</td><td class="mono">20 / 8</td></tr>
-              <tr><td class="mono">16</td><td>HiDream I1 dev fp8</td><td class="mono">17.1 GB</td><td class="mono">28</td></tr>
-              <tr><td class="mono">24</td><td>Qwen-Image fp8</td><td class="mono">20.4 GB</td><td class="mono">50 → 8</td></tr>
-              <tr><td class="mono">48</td><td>Qwen-Image BF16 · FLUX.2 dev</td><td class="mono">40.9 GB</td><td class="mono">50</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="fine">Qwen-Image's 50 steps become 8 with the Lightning LoRA. FLUX.2 dev is 32B and
-          needs ~64 GB at BF16 — the 24 GB row is the fp8-mixed build with offload.</p>
+    <div class="panel" style="margin-top:26px">
+      <div class="panel-head"><h3>Image tiers</h3><span class="mono">4 → 48 GB</span></div>
+      <div class="tscroll">
+        <table class="tbl">
+          <thead><tr><th>VRAM</th><th>Model</th><th>Disk</th><th>Steps</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">4</td><td>SD 1.5 · Anima Q4</td><td class="mono">2.1 GB</td><td class="mono">20–25</td></tr>
+            <tr class="hl"><td class="mono">6</td><td>FLUX.2 Klein 4B distilled</td><td class="mono">4.4 GB</td><td class="mono">4</td></tr>
+            <tr><td class="mono">8</td><td>Z-Image Turbo Q8</td><td class="mono">6.5 GB</td><td class="mono">8</td></tr>
+            <tr><td class="mono">12</td><td>FLUX.1 dev Q8 · Z-Image fp8</td><td class="mono">12 GB</td><td class="mono">20 / 8</td></tr>
+            <tr><td class="mono">16</td><td>HiDream I1 dev fp8</td><td class="mono">17.1 GB</td><td class="mono">28</td></tr>
+            <tr><td class="mono">24</td><td>Qwen-Image fp8</td><td class="mono">20.4 GB</td><td class="mono">50 → 8</td></tr>
+            <tr><td class="mono">48</td><td>Qwen-Image BF16 · FLUX.2 dev</td><td class="mono">40.9 GB</td><td class="mono">50</td></tr>
+          </tbody>
+        </table>
       </div>
+      <p class="fine">Qwen-Image's 50 steps become 8 with the Lightning LoRA. FLUX.2 dev is 32B and
+        needs ~64 GB at BF16 — the 24 GB row is the fp8-mixed build with offload.</p>
+    </div>
 
-      <div class="panel tight">
-        <div class="panel-head"><h3>Video</h3><span class="mono muted">4 → 48 GB</span></div>
-        <div class="tscroll">
-          <table class="tbl">
-            <thead><tr><th>VRAM</th><th>Model</th><th>Disk</th><th>Steps</th></tr></thead>
-            <tbody>
-              <tr><td class="mono">4</td><td>Wan 2.1 1.3B Q4 + CausVid</td><td class="mono">1.1 GB</td><td class="mono">4</td></tr>
-              <tr class="hl"><td class="mono">6</td><td>Wan 2.2 TI2V-5B Q4_K_M</td><td class="mono">3.3 GB</td><td class="mono">4</td></tr>
-              <tr><td class="mono">8</td><td>Wan 2.2 TI2V-5B Q5_K_M</td><td class="mono">4.1 GB</td><td class="mono">4</td></tr>
-              <tr><td class="mono">12</td><td>Wan 2.2 5B Q8_0</td><td class="mono">5.4 GB</td><td class="mono">4</td></tr>
-              <tr><td class="mono">16</td><td>HunyuanVideo 1.5 fp8</td><td class="mono">8.3 GB</td><td class="mono">8–12</td></tr>
-              <tr><td class="mono">24</td><td>Wan 2.2 A14B fp8</td><td class="mono">28.6 GB</td><td class="mono">4–20</td></tr>
-              <tr><td class="mono">48</td><td>LTX-2.3 fp8 · Wan 2.2 A14B BF16</td><td class="mono">27.1 GB</td><td class="mono">20</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="fine">The 14B Wan is a mixture of two noise experts at 14.29 GB each in fp8. LTX-2.3
-          generates audio and video together and needs Gemma 3 12B as its encoder.</p>
+    <div class="feature rev" style="margin-top:72px">
+      <div class="feature-copy">
+        <h2 class="giant plum">Video</h2>
+        <p class="sub">The same ladder for motion. On 6 GB the win is not a bigger model, it is a
+          smaller one that stays resident — 5B at Q4, four steps, 81 frames, and the encoder
+          living in system RAM.</p>
       </div>
+      <div class="feature-art">
+        <img src="assets/img/art-video.jpg" alt="Illustration: a night road through a forest, headlights reflecting on wet asphalt" loading="lazy" width="1392" height="752">
+        <span class="art-tag"><i></i> 704 × 480 · 24 fps</span>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:26px">
+      <div class="panel-head"><h3>Video tiers</h3><span class="mono">4 → 48 GB</span></div>
+      <div class="tscroll">
+        <table class="tbl">
+          <thead><tr><th>VRAM</th><th>Model</th><th>Disk</th><th>Steps</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">4</td><td>Wan 2.1 1.3B Q4 + CausVid</td><td class="mono">1.1 GB</td><td class="mono">4</td></tr>
+            <tr class="hl"><td class="mono">6</td><td>Wan 2.2 TI2V-5B Q4_K_M</td><td class="mono">3.3 GB</td><td class="mono">4</td></tr>
+            <tr><td class="mono">8</td><td>Wan 2.2 TI2V-5B Q5_K_M</td><td class="mono">4.1 GB</td><td class="mono">4</td></tr>
+            <tr><td class="mono">12</td><td>Wan 2.2 5B Q8_0</td><td class="mono">5.4 GB</td><td class="mono">4</td></tr>
+            <tr><td class="mono">16</td><td>HunyuanVideo 1.5 fp8</td><td class="mono">8.3 GB</td><td class="mono">8–12</td></tr>
+            <tr><td class="mono">24</td><td>Wan 2.2 A14B fp8</td><td class="mono">28.6 GB</td><td class="mono">4–20</td></tr>
+            <tr><td class="mono">48</td><td>LTX-2.3 fp8 · Wan 2.2 A14B BF16</td><td class="mono">27.1 GB</td><td class="mono">20</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">The 14B Wan is a mixture of two noise experts at 14.29 GB each in fp8. LTX-2.3
+        generates audio and video together and needs Gemma 3 12B as its encoder.</p>
     </div>
 
     <div class="warn-box">
@@ -262,17 +328,23 @@
 <!-- ───────────────────────────── tokens ───────────────────────────── -->
 <section class="section" id="tokens">
   <div class="wrap">
-    <div class="section-head">
-      <p class="kicker">03 — Tokens</p>
-      <h2>Your prompt has a budget.</h2>
-      <p class="sub">Text is tokenised and encoded before a single denoising step runs. Every encoder
-        has a hard limit, and on low-end hardware that pass is often the largest cost of the job —
-        75–80% of a clip on 6 GB.</p>
+    <div class="feature">
+      <div class="feature-copy">
+        <p class="kicker">03 — Tokens</p>
+        <h2 class="giant plum">Tokens</h2>
+        <p class="sub">Text is tokenised and encoded before a single denoising step runs. Every
+          encoder has a hard limit, and on low-end hardware that pass is often the largest cost of
+          the job — 75–80% of a clip on 6 GB.</p>
+      </div>
+      <div class="feature-art">
+        <img src="assets/img/art-chrome.jpg" alt="Illustration: liquid chrome ribbon on black" loading="lazy" width="1392" height="752">
+        <span class="art-tag"><i></i> 512 tokens · per encoder</span>
+      </div>
     </div>
 
-    <div class="mini-grid">
-      <div class="panel tight">
-        <div class="panel-head"><h3>Max prompt tokens</h3><span class="mono muted">per encoder</span></div>
+    <div class="mini-grid" style="margin-top:26px">
+      <div class="panel">
+        <div class="panel-head"><h3>Max prompt tokens</h3><span class="mono">per encoder</span></div>
         <div class="tscroll">
           <table class="tbl">
             <thead><tr><th>Encoder</th><th>Used by</th><th>Tokens</th></tr></thead>
@@ -293,8 +365,8 @@
           pipeline settings — Z-Image's rotary positions allow up to 1536.</p>
       </div>
 
-      <div class="panel tight">
-        <div class="panel-head"><h3>What a prompt costs</h3><span class="mono muted">6 GB, measured</span></div>
+      <div class="panel">
+        <div class="panel-head"><h3>What a prompt costs</h3><span class="mono">6 GB, measured</span></div>
         <div class="tscroll">
           <table class="tbl">
             <thead><tr><th>Prompt</th><th>Tokens</th><th>Encode</th></tr></thead>
@@ -332,19 +404,19 @@
 </section>
 
 <!-- ───────────────────────────── outputs ───────────────────────────── -->
-<section class="section alt" id="outputs">
+<section class="section dark" id="outputs">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">04 — Outputs</p>
-      <h2>What lands in the output folder.</h2>
+      <h2 class="h2">What lands in the output folder.</h2>
       <p class="sub">Resolution, duration and file size per tier. Renders are gitignored, so the
-        repository stays ~100 KB — these are the specs each tier produces, not somebody else's
+        repository stays small — these are the specs each tier produces, not somebody else's
         gallery.</p>
     </div>
 
     <div class="mini-grid">
-      <div class="panel tight">
-        <div class="panel-head"><h3>Video</h3><span class="mono muted">h264 MP4 · 24 fps</span></div>
+      <div class="panel">
+        <div class="panel-head"><h3>Video</h3><span class="mono">h264 MP4 · 24 fps</span></div>
         <div class="tscroll">
           <table class="tbl">
             <thead><tr><th>VRAM</th><th>Output</th><th>Length</th><th>Size</th></tr></thead>
@@ -362,8 +434,8 @@
           A true 1920×1080 file; interpolated detail.</p>
       </div>
 
-      <div class="panel tight">
-        <div class="panel-head"><h3>Images</h3><span class="mono muted">PNG · 8-bit default</span></div>
+      <div class="panel">
+        <div class="panel-head"><h3>Images</h3><span class="mono">PNG · 8-bit default</span></div>
         <div class="tscroll">
           <table class="tbl">
             <thead><tr><th>Model</th><th>Resolution</th><th>Size</th></tr></thead>
@@ -387,11 +459,12 @@
   </div>
 </section>
 
-<section class="section alt" id="stack">
+<!-- ───────────────────────────── twelve parts ───────────────────────────── -->
+<section class="section" id="stack">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">05 — Every element</p>
-      <h2>Twelve parts. One of them is your bottleneck.</h2>
+      <h2 class="h2">Twelve parts. One of them is your bottleneck.</h2>
       <p class="sub">A Wan graph is not magic and it is not one model. Each box below has a cost,
         a failure mode, and a knob. On low-end hardware you are mostly managing the first two.</p>
     </div>
@@ -523,11 +596,11 @@
 </section>
 
 <!-- ───────────────────────────── vram budget ───────────────────────────── -->
-<section class="section" id="budget">
+<section class="section dark" id="budget">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">06 — The budget</p>
-      <h2>Where 6 GB actually goes.</h2>
+      <h2 class="h2">Where 6 GB actually goes.</h2>
       <p class="sub">Two different memory pools, two different failure modes. The GPU runs out of
         VRAM; the encoder runs out of patience in system RAM.</p>
     </div>
@@ -536,7 +609,7 @@
       <div class="panel">
         <div class="panel-head">
           <h3>VRAM · 6.0 GB</h3>
-          <span class="mono muted">peak 5.7 GB</span>
+          <span class="mono">peak 5.7 GB</span>
         </div>
         <div class="stackbar" aria-hidden="true">
           <span style="width:56%;background:linear-gradient(180deg,#f2ff59,#cfdc3f)"></span>
@@ -556,7 +629,7 @@
       <div class="panel">
         <div class="panel-head">
           <h3>System RAM · 16 GB</h3>
-          <span class="mono muted">encoder streams</span>
+          <span class="mono">encoder streams</span>
         </div>
         <div class="stackbar" aria-hidden="true">
           <span style="width:30%;background:linear-gradient(180deg,#fabc25,#d99e1b)"></span>
@@ -589,11 +662,11 @@
 </section>
 
 <!-- ───────────────────────────── benchmarks ───────────────────────────── -->
-<section class="section alt" id="bench">
+<section class="section" id="bench">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">07 — Benchmarks</p>
-      <h2>One machine, honest numbers.</h2>
+      <h2 class="h2">One machine, honest numbers.</h2>
       <p class="sub">RTX 4050 Laptop · Ryzen 7 7435HS · 16 GB · ComfyUI 0.46.0 · torch 2.14.1.
         Wall clock from submit to finished file, GPU idle beforehand. One run per point.</p>
     </div>
@@ -626,27 +699,31 @@
     </div>
 
     <div class="mini-grid">
-      <div class="panel tight">
-        <h3>Launch flags</h3>
-        <table class="tbl">
-          <thead><tr><th>Flags</th><th>Step</th><th>Peak</th></tr></thead>
-          <tbody>
-            <tr><td><code>--lowvram</code></td><td class="mono">24.7 s</td><td class="mono">3.8 GB</td></tr>
-            <tr class="hl"><td><code>--reserve-vram 0.2</code></td><td class="mono">4.5 s</td><td class="mono">5.7 GB</td></tr>
-          </tbody>
-        </table>
+      <div class="panel">
+        <div class="panel-head"><h3>Launch flags</h3><span class="mono">per step</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>Flags</th><th>Step</th><th>Peak</th></tr></thead>
+            <tbody>
+              <tr><td><code>--lowvram</code></td><td class="mono">24.7 s</td><td class="mono">3.8 GB</td></tr>
+              <tr class="hl"><td><code>--reserve-vram 0.2</code></td><td class="mono">4.5 s</td><td class="mono">5.7 GB</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="panel tight">
-        <h3>Other workloads</h3>
-        <table class="tbl">
-          <thead><tr><th>Job</th><th>Time</th></tr></thead>
-          <tbody>
-            <tr><td>VACE 33 f · 20 steps</td><td class="mono">~300 s</td></tr>
-            <tr><td>VACE 33 f + CausVid</td><td class="mono">~60–80 s</td></tr>
-            <tr><td>Face swap, 385 f</td><td class="mono">~6.7 min</td></tr>
-            <tr><td>4× upscale to 1080p</td><td class="mono">GPU-bound</td></tr>
-          </tbody>
-        </table>
+      <div class="panel">
+        <div class="panel-head"><h3>Other workloads</h3><span class="mono">6 GB</span></div>
+        <div class="tscroll">
+          <table class="tbl">
+            <thead><tr><th>Job</th><th>Time</th></tr></thead>
+            <tbody>
+              <tr><td>VACE 33 f · 20 steps</td><td class="mono">~300 s</td></tr>
+              <tr><td>VACE 33 f + CausVid</td><td class="mono">~60–80 s</td></tr>
+              <tr><td>Face swap, 385 f</td><td class="mono">~6.7 min</td></tr>
+              <tr><td>4× upscale to 1080p</td><td class="mono">GPU-bound</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -656,36 +733,36 @@
 </section>
 
 <!-- ───────────────────────────── workflows ───────────────────────────── -->
-<section class="section" id="workflows">
+<section class="section dark" id="workflows">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">08 — Workflows</p>
-      <h2>Four graphs. Drag, run, done.</h2>
+      <h2 class="h2">Four graphs. Drag, run, done.</h2>
       <p class="sub">ComfyUI UI-format JSON. Copy them into <code>user/default/workflows</code> and
         they appear in the sidebar, or drop one straight onto the canvas.</p>
     </div>
 
     <div class="wf-grid">
       <article class="wf">
-        <div class="wf-top"><span class="pill ok">verified</span><span class="mono muted">11 nodes</span></div>
+        <div class="wf-top"><span class="pill ok">verified</span><span class="mono">11 nodes</span></div>
         <h3>Text → video</h3>
         <p>Prompt in, 3.4 s clip out. No negative prompt, no second encoder pass.</p>
         <dl><div><dt>704×480</dt><dd>81 frames</dd></div><div><dt>4</dt><dd>steps</dd></div></dl>
       </article>
       <article class="wf">
-        <div class="wf-top"><span class="pill ok">verified</span><span class="mono muted">13 nodes</span></div>
+        <div class="wf-top"><span class="pill ok">verified</span><span class="mono">13 nodes</span></div>
         <h3>Image → video</h3>
         <p>Start frame plus a motion prompt. The official template with GGUF loaders swapped in.</p>
         <dl><div><dt>704×480</dt><dd>81 frames</dd></div><div><dt>4</dt><dd>steps</dd></div></dl>
       </article>
       <article class="wf">
-        <div class="wf-top"><span class="pill ok">verified</span><span class="mono muted">14 nodes</span></div>
+        <div class="wf-top"><span class="pill ok">verified</span><span class="mono">14 nodes</span></div>
         <h3>Character swap</h3>
         <p>VACE 1.3B carries a reference character into a new scene. Not distilled: 20 steps, CFG 6.</p>
         <dl><div><dt>~300 s</dt><dd>33 frames</dd></div><div><dt>1.3B</dt><dd>Q8_0</dd></div></dl>
       </article>
       <article class="wf">
-        <div class="wf-top"><span class="pill warn">experimental</span><span class="mono muted">14 nodes</span></div>
+        <div class="wf-top"><span class="pill warn">experimental</span><span class="mono">14 nodes</span></div>
         <h3>1080p export</h3>
         <p>Sample at 864×480, upscale 4× with UltraSharp, resize to 1920×1080. Real pixels, invented detail.</p>
         <dl><div><dt>1920×1080</dt><dd>output</dd></div><div><dt>4×</dt><dd>upscale</dd></div></dl>
@@ -695,18 +772,18 @@
 </section>
 
 <!-- ───────────────────────────── install ───────────────────────────── -->
-<section class="section alt" id="install">
+<section class="section" id="install">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">09 — Install</p>
-      <h2>From empty folder to first clip.</h2>
+      <h2 class="h2">From empty folder to first clip.</h2>
       <p class="sub">Windows portable. Linux and macOS are in the docs, same five steps with a venv.</p>
     </div>
 
     <ol class="steps">
       <li>
         <div class="step-body">
-          <h3><span>1</span> ComfyUI portable</h3>
+          <h3><span>01</span> ComfyUI portable</h3>
           <p>Download the <code>.7z</code> from the ComfyUI releases page and extract it so that
             <code>ComfyUI_windows_portable\python_embeded\python.exe</code> exists.</p>
           <a class="link" href="https://github.com/comfyanonymous/ComfyUI/releases" target="_blank" rel="noopener">ComfyUI releases ↗</a>
@@ -714,45 +791,45 @@
       </li>
       <li>
         <div class="step-body">
-          <h3><span>2</span> GGUF loader</h3>
+          <h3><span>02</span> GGUF loader</h3>
           <p>ComfyUI cannot read <code>.gguf</code> without this node.</p>
           <div class="code">
             <pre><code>git clone --depth 1 https://github.com/city96/ComfyUI-GGUF.git `
   .\ComfyUI_windows_portable\ComfyUI\custom_nodes\ComfyUI-GGUF
 .\ComfyUI_windows_portable\python_embeded\python.exe -m pip install `
   -r .\ComfyUI_windows_portable\ComfyUI\custom_nodes\ComfyUI-GGUF\requirements.txt</code></pre>
-            <button class="copy">copy</button>
+            <button class="copy" type="button">copy</button>
           </div>
         </div>
       </li>
       <li>
         <div class="step-body">
-          <h3><span>3</span> Models</h3>
+          <h3><span>03</span> Models</h3>
           <p>Six files, ~9 GB, resumable. The script also converts the upscaler to safetensors.</p>
           <div class="code">
             <pre><code>powershell -ExecutionPolicy Bypass -File .\scripts\download_models.ps1</code></pre>
-            <button class="copy">copy</button>
+            <button class="copy" type="button">copy</button>
           </div>
         </div>
       </li>
       <li>
         <div class="step-body">
-          <h3><span>4</span> Workflows</h3>
+          <h3><span>04</span> Workflows</h3>
           <p>Copy the four graphs into the sidebar folder.</p>
           <div class="code">
             <pre><code>Copy-Item .\workflows\*.json `
   .\ComfyUI_windows_portable\ComfyUI\user\default\workflows\</code></pre>
-            <button class="copy">copy</button>
+            <button class="copy" type="button">copy</button>
           </div>
         </div>
       </li>
       <li>
         <div class="step-body">
-          <h3><span>5</span> Run</h3>
+          <h3><span>05</span> Run</h3>
           <p>Open <code>http://127.0.0.1:8188</code>, pick a workflow, press Run.</p>
           <div class="code">
             <pre><code>.\scripts\run_comfyui.bat</code></pre>
-            <button class="copy">copy</button>
+            <button class="copy" type="button">copy</button>
           </div>
         </div>
       </li>
@@ -767,11 +844,11 @@
 </section>
 
 <!-- ───────────────────────────── troubleshooting ───────────────────────────── -->
-<section class="section" id="fix">
+<section class="section dark" id="fix">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">10 — When it breaks</p>
-      <h2>The eight failures you will actually hit.</h2>
+      <h2 class="h2">The eight failures you will actually hit.</h2>
     </div>
 
     <div class="acc">
@@ -839,11 +916,11 @@
 </section>
 
 <!-- ───────────────────────────── faq ───────────────────────────── -->
-<section class="section alt" id="faq">
+<section class="section" id="faq">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="kicker">11 — Questions</p>
-      <h2>Short answers, no hedging.</h2>
+      <h2 class="h2">Short answers, no hedging.</h2>
     </div>
     <div class="acc">
       <details>
@@ -894,49 +971,75 @@
   </div>
 </section>
 
+<!-- ───────────────────────────── cta ───────────────────────────── -->
+<section class="cta">
+  <div class="wrap">
+    <p class="kicker">Start here</p>
+    <h2>Run it on your card.</h2>
+    <p>Six files, ~9 GB, five commands. The 6 GB build is measured end to end — every other tier
+      starts from the same five steps.</p>
+    <div class="cta-actions">
+      <a class="btn btn-dark" href="#install">Install in 5 steps</a>
+      <a class="btn btn-ghost" href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">Open the repository</a>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="foot">
-  <div class="wrap foot-inner">
-    <div class="foot-brand">
-      <a class="brand" href="#top">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="9" fill="#f2ff59"/>
-          <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#211927" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>comfy<b>·</b>every</span>
-      </a>
-      <p>An independent field guide to running ComfyUI on any GPU — measured on a 6 GB laptop.
-        Not affiliated with Comfy Org or Alibaba.</p>
-    </div>
-    <div class="foot-cols">
-      <div>
-        <h3>Docs</h3>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/model-matrix.md" target="_blank" rel="noopener">Model matrix</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/tokens.md" target="_blank" rel="noopener">Tokens</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/outputs.md" target="_blank" rel="noopener">Outputs</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/installation.md" target="_blank" rel="noopener">Installation</a>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="9" fill="#f2ff59"/>
+            <path d="M8 20.5l5-9.5 3 6.2 3.2-4.2 4.8 7.5" fill="none" stroke="#000000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>comfy<b>·</b>every</span>
+        </a>
+        <p>An independent field guide to running ComfyUI on any GPU — measured on a 6 GB laptop.
+          Not affiliated with Comfy Org or Alibaba.</p>
       </div>
-      <div>
-        <h3>The 6 GB build</h3>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/models.md" target="_blank" rel="noopener">Models</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/workflows.md" target="_blank" rel="noopener">Workflows</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/performance.md" target="_blank" rel="noopener">Performance</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/hardware.md" target="_blank" rel="noopener">VRAM tiers</a>
-      </div>
-      <div>
-        <h3>Code</h3>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">Repository</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/tree/main/workflows" target="_blank" rel="noopener">Workflow JSON</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/faceswap.md" target="_blank" rel="noopener">Face swap</a>
-        <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
-      </div>
-    </div>
-  </div>
 
-  <div class="wrap foot-base">
-    <span>© 2026 · MIT for code and prose</span>
-    <span class="mono">4–48 GB · image + video · one measured build</span>
+      <div class="foot-cols">
+        <div>
+          <h3>Docs</h3>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/model-matrix.md" target="_blank" rel="noopener">Model matrix</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/tokens.md" target="_blank" rel="noopener">Tokens</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/outputs.md" target="_blank" rel="noopener">Outputs</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/installation.md" target="_blank" rel="noopener">Installation</a>
+        </div>
+        <div>
+          <h3>The 6 GB build</h3>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/models.md" target="_blank" rel="noopener">Models</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/workflows.md" target="_blank" rel="noopener">Workflows</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/performance.md" target="_blank" rel="noopener">Performance</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/hardware.md" target="_blank" rel="noopener">VRAM tiers</a>
+        </div>
+        <div>
+          <h3>Code</h3>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system" target="_blank" rel="noopener">Repository</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/tree/main/workflows" target="_blank" rel="noopener">Workflow JSON</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/faceswap.md" target="_blank" rel="noopener">Face swap</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+        </div>
+        <div>
+          <h3>More</h3>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/faq.md" target="_blank" rel="noopener">FAQ</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener">Troubleshooting</a>
+          <a href="https://github.com/OVAIS69/comfy-on-every-system/issues" target="_blank" rel="noopener">Issues</a>
+          <a href="https://github.com/comfyanonymous/ComfyUI/releases" target="_blank" rel="noopener">ComfyUI releases</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="foot-word" aria-label="comfy every">COMFY<span>·</span>EVERY</p>
+
+    <div class="foot-base">
+      <span>© 2026 · MIT for code and prose</span>
+      <span>4–48 GB · image + video · one measured build</span>
+    </div>
   </div>
 </footer>
 

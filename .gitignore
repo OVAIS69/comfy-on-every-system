@@ -20,6 +20,7 @@ output/
 *.jpg
 !docs/**/*.png
 !assets/**/*.png
+!docs/assets/img/*.jpg
 
 # python
 __pycache__/
